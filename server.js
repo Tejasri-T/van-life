@@ -25,6 +25,7 @@ createServer({
         
 
         this.get("/vans", (schema, request) => {
+                // return new Response(400, {}, { message: "No user with those credentials found!" })
             return schema.vans.all()
         })
 
@@ -53,7 +54,7 @@ createServer({
             
             if (!foundUser) {
                 console.log("user not found")
-                return new Response(401, {name:9003}, { message: "No user with those credentials found!" })
+                return new Response(401, {}, { message: "No user with those credentials found!" })
             }
             // console.log("found:",foundUser)
             
