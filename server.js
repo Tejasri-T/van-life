@@ -1,9 +1,11 @@
-import { createServer, Model } from "miragejs"
+import { createServer, Model,Response } from "miragejs"
 
+let nativeResponse = window.Response
 
 createServer({
     models: {
         vans: Model,
+        users: Model
     },
 
     seeds(server) {
@@ -13,21 +15,25 @@ createServer({
         server.create("van", { id: "4", name: "Dreamfinder", price: 65, description: "Dreamfinder is the perfect van to travel in and experience. With a ceiling height of 2.1m, you can stand up in this van and there is great head room. The floor is a beautiful glass-reinforced plastic (GRP) which is easy to clean and very hard wearing. A large rear window and large side windows make it really light inside and keep it well ventilated.", imageUrl: "https://assets.scrimba.com/advanced-react/react-router/dreamfinder.png", type: "simple", hostId: "789" })
         server.create("van", { id: "5", name: "The Cruiser", price: 120, description: "The Cruiser is a van for those who love to travel in comfort and luxury. With its many windows, spacious interior and ample storage space, the Cruiser offers a beautiful view wherever you go.", imageUrl: "https://assets.scrimba.com/advanced-react/react-router/the-cruiser.png", type: "luxury", hostId: "789" })
         server.create("van", { id: "6", name: "Green Wonder", price: 70, description: "With this van, you can take your travel life to the next level. The Green Wonder is a sustainable vehicle that's perfect for people who are looking for a stylish, eco-friendly mode of transport that can go anywhere.", imageUrl: "https://assets.scrimba.com/advanced-react/react-router/green-wonder.png", type: "rugged", hostId: "123" })
+        server.create("user",{ id: "123", email: "teja@gmail.com" , password: "p123", name: "teja"})
+    
     },
 
     routes() {
         this.namespace = "api"
+        this.logging = false
+        
 
         this.get("/vans", (schema, request) => {
             return schema.vans.all()
         })
-        
+
         this.get("/vans/:id", (schema, request) => {
             const id = request.params.id
             return schema.vans.find(id)
         })
 
-         this.get("/host/vans", (schema, request) => {
+        this.get("/host/vans", (schema, request) => {
             // Hard-code the hostId for now
             return schema.vans.where({ hostId: "123" })
         })
@@ -37,5 +43,28 @@ createServer({
             const id = request.params.id
             return schema.vans.findBy({ id, hostId: "123" })
         })
+        this.post("/login", (schema, request) => {
+            const { email, password } = JSON.parse(request.requestBody)
+            // This is an extremely naive version of authentication. Please don't
+            // do this in the real world, and never save raw text passwords
+            // in your database 😇
+            // console.log(email,password)
+            const foundUser = schema.users.findBy({ email, password })
+            
+            if (!foundUser) {
+                console.log("user not found")
+                return new Response(401, {name:9003}, { message: "No user with those credentials found!" })
+            }
+            // console.log("found:",foundUser)
+            
+            // At the very least, don't send the password back to the client 😅
+            foundUser.password = undefined
+            return {
+                user: foundUser,
+                token: "Enjoy your pizza, here's your tokens."
+            }
+        })
     }
 })
+
+window.Response = nativeResponse

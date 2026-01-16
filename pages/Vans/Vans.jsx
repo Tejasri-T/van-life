@@ -1,39 +1,21 @@
 import { useState,useEffect } from 'react';
-import { Link,useSearchParams } from 'react-router-dom';
-import { getVans } from '../api';
+import { Link,useSearchParams,useLoaderData } from 'react-router-dom';
+import { getVans } from '../../api';
+
+export function loader(){
+    return getVans()
+}
 
 
 export default function Van(){
-    const [vans,setVans] = useState([])
+    
     const [searchParams,setSearchParams] = useSearchParams()
-    const typeFilter = searchParams.get("type")
-    const [loading,setLoading] = useState(false)
-    const [error, setError] = useState(null)
-
-    // console.log(searchParams.toString())
-
-    useEffect(() => {
-        async function loadVans(){
-            setLoading(true)
-            try{
-                const data = await getVans()
-            // console.log(data)
-            setVans(data)
-            }catch(err){
-                 setError(err)
-            }finally{
-                setLoading(false)
-
-            }
-            
-        }
-
-        loadVans()
-    }, [])
-
-
+    
+     const [error, setError] = useState(null)
+    const vans = useLoaderData() 
+    
     // console.log(vans)
-
+    const typeFilter = searchParams.get("type")
      const displayedVans = typeFilter
         ? vans.filter(van => van.type === typeFilter)
         : vans
@@ -67,11 +49,8 @@ export default function Van(){
         })
     }
 
-    if (loading){
-        return <h1>Loading...</h1>
-    }
     if (error) {
-        return <h1>There was an error: {error.message}</h1>
+        return <h1 aria-live="assertive">There was an error: {error.message}</h1>
     }
 
 

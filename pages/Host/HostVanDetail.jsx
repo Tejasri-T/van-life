@@ -1,11 +1,19 @@
 import { useParams } from "react-router-dom"
-import { Link ,NavLink,Outlet} from "react-router-dom"
-import {useState,useEffect} from 'react'
+import { Link ,NavLink,Outlet,useLoaderData} from "react-router-dom"
+import {useState,useEffect} from 'react' 
+import { getHostVans } from "../../api"
+import { requireAuth } from "../../utils"
+
+export async function loader({params}){
+    await requireAuth()
+    return getHostVans(params.id)
+}
 
 export default function HostVanDetail() {
 
-    const params = useParams()
-    const [van,setVan] = useState([])
+    // const params = useParams()
+    // const [van,setVan] = useState([])
+    const van = useLoaderData()
 
     const activeStyles = {
         fontWeight: "bold",
@@ -13,11 +21,11 @@ export default function HostVanDetail() {
         color: "#161616"
     }
 
-    useEffect(() => {
-            fetch(`/api/host/vans/${params.id}`)
-                .then(res => res.json())
-                .then(data => setVan(data.vans))
-        }, [])
+    // useEffect(() => {
+    //         fetch(`/api/host/vans/${params.id}`)
+    //             .then(res => res.json())
+    //             .then(data => setVan(data.vans))
+    //     }, [])
     
     //console.log(van)
 
